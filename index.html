@@ -26,7 +26,7 @@
 <body>
 <div class="app">
 <header class="topbar"><div class="brand"><img src="icon-512.png" class="brand-icon" alt="Logo"><div><h1>Romaneio Paletes</h1><p>Sistema local para controle de paletes</p></div></div><div class="status-pill">💾 Dados salvos no aparelho</div></header>
-<section class="dashboard"><div class="metric"><div class="ico">📋</div><div><b id="dashRegistros">0</b><span>Registros</span></div></div><div class="metric"><div class="ico">📦</div><div><b id="dashCaixas">0</b><span>Caixas</span></div></div><div class="metric"><div class="ico">🧱</div><div><b id="dashPaletes">0</b><span>Paletes</span></div></div><div class="metric"><div class="ico">🕒</div><div><b id="dashUltimo">--</b><span>Último registro</span></div></div></section>
+<section class="dashboard"><div class="metric"><div class="ico">📋</div><div><b id="dashRegistros">0</b><span id="dashRegistrosLabel">Registros totais</span></div></div><div class="metric"><div class="ico">📦</div><div><b id="dashCaixas">0</b><span id="dashCaixasLabel">Caixas totais</span></div></div><div class="metric"><div class="ico">🧱</div><div><b id="dashPaletes">0</b><span id="dashPaletesLabel">Paletes totais</span></div></div><div class="metric"><div class="ico">🕒</div><div><b id="dashUltimo">--</b><span>Último registro</span></div></div></section>
 <nav class="tabs" aria-label="Abas do romaneio"><button id="tabTotal" class="tab-button active" type="button" onclick="abrirAba('total')">ROMANEIO TOTAL</button><button id="tabCaminhao" class="tab-button" type="button" onclick="abrirAba('caminhao')">ROMANEIO POR CAMINHÃO</button></nav>
 <main class="layout" id="abaTotal">
 <section class="card flow-card" id="escolhaFluxo"><div class="card-header"><h2>Adicionar palete</h2><span class="badge">Nova entrada</span></div><p>Leia a etiqueta do palete ou utilize o preenchimento manual.</p><div class="flow-actions"><button class="btn-primary" type="button" onclick="abrirLeitorQr()">📷 LER CÓDIGO</button><button class="btn-secondary" type="button" onclick="usarInsercaoManual()">INSERÇÃO MANUAL</button><button id="btnExcelInicial" type="button" onclick="gerarExcel()">GERAR E SALVAR EXCEL</button><button id="btnReiniciarInicial" class="btn-danger" type="button" onclick="reiniciarEntradas()">REINICIAR ENTRADAS</button></div></section>
@@ -50,7 +50,7 @@
 <section class="card"><div class="card-header"><h2>Romaneio por Caminhão</h2><span class="badge">Placa</span></div><p class="truck-help">Informe a placa e selecione os paletes que serão carregados neste caminhão.</p><div class="input-group"><label for="campoPlaca">PLACA</label><input id="campoPlaca" type="text" maxlength="8" placeholder="ABC1D23" oninput="formatarPlaca(); atualizarSelecaoCaminhao()"></div><div class="actions"><button class="btn-primary" type="button" onclick="salvarCaminhao()">SALVAR PALETES DO CAMINHÃO</button><button id="btnExcelCaminhao" type="button" onclick="gerarExcelCaminhao()">GERAR EXCEL DO CAMINHÃO</button></div><div class="truck-summary" id="resumoCaminhao">Nenhum palete selecionado</div></section>
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.0</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.1</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -66,7 +66,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.6.0";
+const APP_VERSION = "1.6.1";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -81,6 +81,7 @@ let detectorQr = null;
 let leitorDataMatrix = null;
 let paleteAtual = null;
 let adicionandoEmPaleteFechado = false;
+let abaAtiva = "total";
 
 function dataLocalISO() {
     const agora = new Date();
@@ -605,11 +606,13 @@ function obterPaletes() {
 
 function abrirAba(aba) {
     const caminhao = aba === "caminhao";
+    abaAtiva = caminhao ? "caminhao" : "total";
     document.getElementById("abaTotal").classList.toggle("hidden", caminhao);
     document.getElementById("abaCaminhao").classList.toggle("hidden", !caminhao);
     document.getElementById("tabTotal").classList.toggle("active", !caminhao);
     document.getElementById("tabCaminhao").classList.toggle("active", caminhao);
     if (caminhao) renderizarPaletesCaminhao();
+    atualizarDashboardVisual();
 }
 
 function renderizarPaletesCaminhao() {
@@ -664,6 +667,7 @@ function atualizarResumoCaminhao() {
     const badge = document.getElementById("badgePaletesCaminhao");
     if (resumo) resumo.textContent = selecionados.length ? `${selecionados.length} palete(s) • ${caixas} caixas` : "Nenhum palete selecionado";
     if (badge) badge.textContent = `${selecionados.length} palete(s)`;
+    if (abaAtiva === "caminhao") atualizarDashboardVisual();
 }
 
 function salvarCaminhao(silencioso = false) {
@@ -1146,7 +1150,15 @@ document.addEventListener("click", async (ev) => {
 
 
 function atualizarDashboardVisual() {
-    const linhas = Array.from(document.querySelectorAll("#tabela tbody tr"));
+    const todasAsLinhas = Array.from(document.querySelectorAll("#tabela tbody tr"));
+    let linhas = todasAsLinhas;
+    if (abaAtiva === "caminhao") {
+        const paletesSelecionados = new Set(
+            Array.from(document.querySelectorAll("#listaPaletesCaminhao input:checked"))
+                .map(input => String(input.dataset.palete || ""))
+        );
+        linhas = todasAsLinhas.filter(linha => paletesSelecionados.has(String(linha.cells[2]?.innerText || "")));
+    }
     const totalRegistros = linhas.length;
     const totalCaixas = linhas.reduce((s, linha) => s + Number(linha.cells[6]?.innerText || 0), 0);
     const totalPaletes = new Set(linhas.map(linha => linha.cells[2]?.innerText).filter(Boolean)).size;
@@ -1156,16 +1168,22 @@ function atualizarDashboardVisual() {
     const elCx = document.getElementById("dashCaixas");
     const elPal = document.getElementById("dashPaletes");
     const elUlt = document.getElementById("dashUltimo");
+    const labelReg = document.getElementById("dashRegistrosLabel");
+    const labelCx = document.getElementById("dashCaixasLabel");
+    const labelPal = document.getElementById("dashPaletesLabel");
 
     if (elReg) elReg.innerText = totalRegistros;
     if (elCx) elCx.innerText = totalCaixas;
     if (elPal) elPal.innerText = totalPaletes;
     if (elUlt) elUlt.innerText = ultimo === "--" ? "--" : ultimo.substring(0, 5);
+    if (labelReg) labelReg.innerText = abaAtiva === "caminhao" ? "Registros do caminhão" : "Registros totais";
+    if (labelCx) labelCx.innerText = abaAtiva === "caminhao" ? "Caixas do caminhão" : "Caixas totais";
+    if (labelPal) labelPal.innerText = abaAtiva === "caminhao" ? "Paletes do caminhão" : "Paletes totais";
 
     const emptyState = document.getElementById("emptyState");
     const tableContainer = document.getElementById("tableContainer");
-    if (emptyState) emptyState.style.display = totalRegistros ? "none" : "flex";
-    if (tableContainer) tableContainer.classList.toggle("is-empty", totalRegistros === 0);
+    if (emptyState) emptyState.style.display = todasAsLinhas.length ? "none" : "flex";
+    if (tableContainer) tableContainer.classList.toggle("is-empty", todasAsLinhas.length === 0);
 }
 
 function iniciarInterfaceVisual() {
