@@ -50,7 +50,7 @@
 <section class="card"><div class="card-header"><h2>Romaneio por Caminhão</h2><span class="badge">Placa</span></div><p class="truck-help">Informe a placa e selecione os paletes que serão carregados neste caminhão.</p><div class="input-group"><label for="campoPlaca">PLACA</label><input id="campoPlaca" type="text" maxlength="8" placeholder="ABC1D23" oninput="formatarPlaca(); atualizarSelecaoCaminhao()"></div><div class="actions"><button class="btn-primary" type="button" onclick="salvarCaminhao()">SALVAR PALETES DO CAMINHÃO</button><button id="btnExcelCaminhao" type="button" onclick="gerarExcelCaminhao()">GERAR EXCEL DO CAMINHÃO</button></div><div class="truck-summary" id="resumoCaminhao">Nenhum palete selecionado</div></section>
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.1</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.2</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -66,7 +66,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.6.1";
+const APP_VERSION = "1.6.2";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -621,6 +621,9 @@ function renderizarPaletesCaminhao() {
     const paletes = obterPaletes();
     const caminhoes = lerCaminhoes();
     const placaDigitada = normalizarPlaca(document.getElementById("campoPlaca")?.value);
+    const paletesDisponiveis = paletes.filter(item =>
+        !caminhoes[item.palete] || caminhoes[item.palete] === placaDigitada
+    );
     lista.replaceChildren();
 
     if (!paletes.length) {
@@ -628,9 +631,14 @@ function renderizarPaletesCaminhao() {
         vazio.className = "truck-empty";
         vazio.textContent = "Ainda não há paletes no romaneio total.";
         lista.appendChild(vazio);
+    } else if (!paletesDisponiveis.length) {
+        const vazio = document.createElement("div");
+        vazio.className = "truck-empty";
+        vazio.textContent = "Todos os paletes já foram adicionados a caminhões.";
+        lista.appendChild(vazio);
     }
 
-    paletes.forEach(item => {
+    paletesDisponiveis.forEach(item => {
         const rotulo = document.createElement("label");
         rotulo.className = "truck-pallet";
         const checkbox = document.createElement("input");
@@ -682,6 +690,12 @@ function salvarCaminhao(silencioso = false) {
         return false;
     }
     const caminhoes = lerCaminhoes();
+    const paleteIndisponivel = Array.from(selecionados).find(palete => caminhoes[palete] && caminhoes[palete] !== placa);
+    if (paleteIndisponivel) {
+        alert(`O palete ${paleteIndisponivel} já pertence ao caminhão ${caminhoes[paleteIndisponivel]}. Atualize a lista e tente novamente.`);
+        renderizarPaletesCaminhao();
+        return false;
+    }
     Object.keys(caminhoes).forEach(palete => {
         if (caminhoes[palete] === placa && !selecionados.has(palete)) delete caminhoes[palete];
     });
