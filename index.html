@@ -51,7 +51,7 @@
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>CAIXAS</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.7</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.8</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -67,7 +67,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.6.7";
+const APP_VERSION = "1.6.8";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -729,6 +729,22 @@ function baixarCaminhaoHistorico(placa) {
     gerarArquivoExcel(linhas, `romaneio_${placa}.xlsx`, `Caminhão ${placa}`);
 }
 
+function excluirCaminhaoHistorico(placa) {
+    const caminhoes = lerCaminhoes();
+    const paletes = Object.keys(caminhoes).filter(palete => caminhoes[palete] === placa);
+    if (!confirm(`Excluir o caminhão ${placa} do histórico e liberar seus ${paletes.length} palete(s)?\nAs entradas do romaneio total não serão apagadas.`)) return;
+    paletes.forEach(palete => { delete caminhoes[palete]; });
+    salvarCaminhoes(caminhoes);
+    const historico = lerHistoricoCaminhoes();
+    delete historico[placa];
+    salvarHistoricoCaminhoes(historico);
+    const campo = document.getElementById("campoPlaca");
+    if (campo && normalizarPlaca(campo.value) === placa) campo.value = "";
+    renderizarPaletesCaminhao();
+    atualizarDashboardVisual();
+    alert(`Caminhão ${placa} excluído. Os paletes foram liberados.`);
+}
+
 function renderizarHistoricoCaminhoes() {
     const tbody = document.querySelector("#tabelaHistoricoCaminhoes tbody");
     if (!tbody) return;
@@ -761,7 +777,12 @@ function renderizarHistoricoCaminhoes() {
         baixar.type = "button";
         baixar.textContent = "Baixar Excel";
         baixar.addEventListener("click", () => baixarCaminhaoHistorico(item.placa));
-        acoes.append(abrir, baixar);
+        const excluir = document.createElement("button");
+        excluir.className = "btn-danger";
+        excluir.type = "button";
+        excluir.textContent = "Excluir caminhão";
+        excluir.addEventListener("click", () => excluirCaminhaoHistorico(item.placa));
+        acoes.append(abrir, baixar, excluir);
     });
 
     const vazio = document.getElementById("historicoCaminhoesVazio");
