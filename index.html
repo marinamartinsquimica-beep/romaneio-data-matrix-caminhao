@@ -47,11 +47,11 @@
 <section class="card"><div class="card-header"><h2>Entradas</h2><span class="badge">Lista</span></div><div class="table-container" id="tableContainer"><table id="tabela"><thead><tr><th onclick="ordenarTabela(0)">DATA</th><th onclick="ordenarTabela(1)">SKU</th><th onclick="ordenarTabela(2)">PALETE</th><th onclick="ordenarTabela(3)">LOTE COMPLETO</th><th>LOTE</th><th>POST</th><th>CX</th><th>OBSERVAÇÕES</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="empty-state" id="emptyState"><div class="empty-icon">📋</div><strong>Nenhuma entrada encontrada</strong><span>Preencha o formulário para adicionar o primeiro romaneio.</span></div></div></section>
 </main>
 <main id="abaCaminhao" class="truck-layout hidden">
-<section class="card"><div class="card-header"><h2>Romaneio por Caminhão</h2><span class="badge">Placa</span></div><p class="truck-help">Informe a placa e selecione os paletes que serão carregados neste caminhão.</p><div class="input-group"><label for="campoPlaca">PLACA</label><input id="campoPlaca" type="text" maxlength="8" placeholder="ABC1D23" oninput="formatarPlaca(); atualizarSelecaoCaminhao()"></div><div class="actions"><button class="btn-primary" type="button" onclick="finalizarCaminhao()">FINALIZAR CAMINHÃO</button><button id="btnExcelCaminhao" type="button" onclick="gerarExcelCaminhao()">GERAR EXCEL DO CAMINHÃO</button><button class="btn-danger" type="button" onclick="reiniciarEntradas()">REINICIAR ENTRADAS</button></div><div class="truck-summary" id="resumoCaminhao">Nenhum palete selecionado</div></section>
+<section class="card"><div class="card-header"><h2>Romaneio por Caminhão</h2><span class="badge">Placa</span></div><p class="truck-help">Informe a placa e selecione os paletes que serão carregados neste caminhão.</p><div class="input-group"><label for="campoPlaca">PLACA</label><input id="campoPlaca" type="text" maxlength="8" placeholder="ABC1D23" oninput="formatarPlaca(); atualizarSelecaoCaminhao()"></div><div class="actions"><button class="btn-primary" type="button" onclick="finalizarCaminhao()">FINALIZAR CAMINHÃO</button><button class="btn-danger" type="button" onclick="reiniciarEntradas()">REINICIAR ENTRADAS</button></div><div class="truck-summary" id="resumoCaminhao">Nenhum palete selecionado</div></section>
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>CAIXAS</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.6</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.7</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -67,7 +67,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.6.6";
+const APP_VERSION = "1.6.7";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -1087,19 +1087,6 @@ async function gerarExcel() {
     }
 
     gerarArquivoExcel(linhas, "romaneio.xlsx", "Romaneio");
-}
-
-function gerarExcelCaminhao() {
-    const placa = normalizarPlaca(document.getElementById("campoPlaca")?.value);
-    if (!salvarCaminhao(true)) return;
-    const caminhoes = lerCaminhoes();
-    const linhas = Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .filter(linha => caminhoes[String(linha.cells[2]?.textContent || "").trim()] === placa);
-    if (!linhas.length) {
-        alert("Não há entradas vinculadas a esta placa.");
-        return;
-    }
-    gerarArquivoExcel(linhas, `romaneio_${placa}.xlsx`, `Caminhão ${placa}`);
 }
 
 function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
