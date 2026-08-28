@@ -51,7 +51,7 @@
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>CAIXAS</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.5</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.6.6</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -67,7 +67,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.6.5";
+const APP_VERSION = "1.6.6";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -672,16 +672,6 @@ function renderizarPaletesCaminhao() {
         acoes.style.display = "flex";
         acoes.style.gap = "6px";
         acoes.style.flexWrap = "wrap";
-        const adicionar = document.createElement("button");
-        adicionar.className = "btn-primary";
-        adicionar.type = "button";
-        adicionar.textContent = "Adicionar entrada";
-        adicionar.addEventListener("click", () => adicionarEntradaAoPaleteCaminhao(item.palete));
-        const editar = document.createElement("button");
-        editar.className = "btn-blue";
-        editar.type = "button";
-        editar.textContent = "Editar palete";
-        editar.addEventListener("click", () => editarPaleteCaminhao(item.palete));
         const vinculo = document.createElement("button");
         vinculo.className = checkbox.checked ? "btn-danger" : "btn-primary";
         vinculo.type = "button";
@@ -692,35 +682,12 @@ function renderizarPaletesCaminhao() {
             vinculo.textContent = checkbox.checked ? "Excluir do caminhão" : "Adicionar ao caminhão";
             atualizarResumoCaminhao();
         });
-        acoes.append(adicionar, editar, vinculo);
+        acoes.append(vinculo);
         rotulo.append(checkbox, descricao, atual, acoes);
         lista.appendChild(rotulo);
     });
     atualizarResumoCaminhao();
     renderizarHistoricoCaminhoes();
-}
-
-function linhaOriginalDoPalete(palete) {
-    return Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .find(linha => String(linha.cells[2]?.textContent || "") === String(palete));
-}
-
-function adicionarEntradaAoPaleteCaminhao(palete) {
-    const linha = linhaOriginalDoPalete(palete);
-    const botao = linha?.querySelector(".btn-adicionar-entrada");
-    if (!botao) return;
-    abrirAba("total");
-    adicionarEntradaPaleteFechado(botao);
-}
-
-function editarPaleteCaminhao(palete) {
-    abrirAba("total");
-    const linha = linhaOriginalDoPalete(palete);
-    if (linha) {
-        linha.scrollIntoView({ behavior: "smooth", block: "center" });
-        linha.style.outline = "3px solid #0875f5";
-        setTimeout(() => { linha.style.outline = ""; }, 2500);
-    }
 }
 
 function atualizarSelecaoCaminhao() {
