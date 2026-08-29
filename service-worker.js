@@ -1,4 +1,4 @@
-const CACHE_NAME = "romaneio-cache-v168-excluir-caminhao";
+const CACHE_NAME = "romaneio-cache-v169-reiniciar-caminhoes";
 
 const FILES_TO_CACHE = [
   "./",
