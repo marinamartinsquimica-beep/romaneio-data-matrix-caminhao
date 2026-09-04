@@ -53,7 +53,7 @@
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div class="truck-select-actions"><button class="btn-primary" type="button" onclick="selecionarTodosPaletes()">SELECIONAR TODOS</button><button class="btn-secondary" type="button" onclick="limparSelecaoPaletes()">LIMPAR SELEÇÃO</button></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>DESTINO</th><th>CAIXAS</th><th>CARREGAMENTO</th><th>RESPONSÁVEL</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.4</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.5</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -69,7 +69,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.7.4";
+const APP_VERSION = "1.7.5";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -1258,8 +1258,6 @@ async function gerarExcel() {
 }
 
 function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
-    const tabela = document.getElementById("tabela");
-
     function dataBRParaExcel(dataBR) {
         if (!dataBR) return null;
 
@@ -1280,29 +1278,36 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
         return Math.round((dataLocal - excelEpoch) / (1000 * 60 * 60 * 24));
     }
 
-    // Exporta somente os dados; a coluna AÇÃO existe apenas na tela.
-    const cabecalhoTela = Array.from(tabela.querySelectorAll("thead th"))
-        .slice(0, -1)
-        .map((th) => th.innerText.trim());
-    const cabecalho = [...cabecalhoTela.slice(0, 3), "COMPLEMENTO", ...cabecalhoTela.slice(3)];
-    cabecalho.push("PLACA", "DATA CARREGAMENTO", "RESPONSÁVEL", "OBSERVAÇÃO CAMINHÃO");
+    const cabecalho = [
+        "DATA", "PALETE", "SKU", "LOTE COMPLETO", "LOTE", "POST", "CX",
+        "DESTINO", "PLACA", "COMPLEMENTO", "RESPONSÁVEL", "OBSERVAÇÕES",
+        "OBSERVAÇÕES CAMINHÃO"
+    ];
     const caminhoes = lerCaminhoes();
     const historico = lerHistoricoCaminhoes();
     const dados = linhas.map((linha) => {
-        const valores = Array.from(linha.cells)
-            .slice(0, -1)
-            .map((celula) => celula.innerText.trim());
-        const complemento = `${valores[1] || ""}${valores[2] || ""}`;
-        valores.splice(3, 0, complemento);
-        const placa = caminhoes[valores[4]] || "";
+        const valor = indice => String(linha.cells[indice]?.innerText || "").trim();
+        const data = valor(0);
+        const sku = valor(1);
+        const destino = valor(2);
+        const palete = valor(3);
+        const placa = caminhoes[palete] || "";
         const dadosCaminhao = historico[placa] || {};
-        valores.push(
+        return [
+            data,
+            palete,
+            sku,
+            valor(4),
+            valor(5),
+            valor(6),
+            valor(7),
+            destino,
             placa,
-            dadosCaminhao.dataCarregamento ? formatarDataBR(dadosCaminhao.dataCarregamento) : "",
+            `${sku}${destino}`,
             dadosCaminhao.responsavel || "",
+            valor(8),
             dadosCaminhao.observacao || ""
-        );
-        return valores;
+        ];
     });
 
     const ws_data = [cabecalho, ...dados.map((linha) =>
@@ -1316,7 +1321,7 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
     )];
 
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    ws["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 28 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 36 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 36 }];
+    ws["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 20 }, { wch: 12 }, { wch: 28 }, { wch: 24 }, { wch: 36 }, { wch: 36 }];
 
     const range = XLSX.utils.decode_range(ws["!ref"]);
     for (let row = 1; row <= range.e.r; row++) {
