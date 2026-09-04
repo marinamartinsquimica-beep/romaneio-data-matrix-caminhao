@@ -53,7 +53,7 @@
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div class="truck-select-actions"><button class="btn-primary" type="button" onclick="selecionarTodosPaletes()">SELECIONAR TODOS</button><button class="btn-secondary" type="button" onclick="limparSelecaoPaletes()">LIMPAR SELEÇÃO</button></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>DESTINO</th><th>CAIXAS</th><th>CARREGAMENTO</th><th>RESPONSÁVEL</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.6</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.7</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -69,7 +69,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.7.6";
+const APP_VERSION = "1.7.7";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -1342,6 +1342,10 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
                 const numeroExcel = dataBRParaExcel(valor);
                 return numeroExcel !== null ? numeroExcel : valor;
             }
+            if (indiceColuna === 6) {
+                const caixasNumero = Number(valor);
+                return Number.isFinite(caixasNumero) ? caixasNumero : 0;
+            }
             return valor;
         })
     )];
@@ -1351,10 +1355,15 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
 
     const range = XLSX.utils.decode_range(ws["!ref"]);
     for (let row = 1; row <= range.e.r; row++) {
-        const cellRef = XLSX.utils.encode_cell({ r: row, c: 0 });
-        if (ws[cellRef] && typeof ws[cellRef].v === "number") {
-            ws[cellRef].t = "n";
-            ws[cellRef].z = "dd/mm/yyyy";
+        const dataRef = XLSX.utils.encode_cell({ r: row, c: 0 });
+        if (ws[dataRef] && typeof ws[dataRef].v === "number") {
+            ws[dataRef].t = "n";
+            ws[dataRef].z = "dd/mm/yyyy";
+        }
+        const caixasRef = XLSX.utils.encode_cell({ r: row, c: 6 });
+        if (ws[caixasRef]) {
+            ws[caixasRef].t = "n";
+            ws[caixasRef].z = "#,##0";
         }
     }
 

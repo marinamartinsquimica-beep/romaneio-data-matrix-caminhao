@@ -1,4 +1,4 @@
-const CACHE_NAME = "romaneio-cache-v176-palete-inicial";
+const CACHE_NAME = "romaneio-cache-v177-caixas-numericas";
 
 const FILES_TO_CACHE = [
   "./",
