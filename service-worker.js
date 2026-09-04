@@ -1,4 +1,4 @@
-const CACHE_NAME = "romaneio-cache-v172-lista-caminhao";
+const CACHE_NAME = "romaneio-cache-v173-destinos-caminhao";
 
 const FILES_TO_CACHE = [
   "./",

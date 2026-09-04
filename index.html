@@ -53,7 +53,7 @@
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div class="truck-select-actions"><button class="btn-primary" type="button" onclick="selecionarTodosPaletes()">SELECIONAR TODOS</button><button class="btn-secondary" type="button" onclick="limparSelecaoPaletes()">LIMPAR SELEÇÃO</button></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>CAIXAS</th><th>CARREGAMENTO</th><th>RESPONSÁVEL</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.2</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.3</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -69,7 +69,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.7.2";
+const APP_VERSION = "1.7.3";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -609,12 +609,17 @@ function obterPaletes() {
     document.querySelectorAll("#tabela tbody tr").forEach(linha => {
         const palete = String(linha.cells[3]?.textContent || "").trim();
         if (!palete) return;
-        const atual = resumo.get(palete) || { palete, itens: 0, caixas: 0 };
+        const atual = resumo.get(palete) || { palete, itens: 0, caixas: 0, destinos: new Set() };
         atual.itens += 1;
         atual.caixas += Number(linha.cells[7]?.textContent || 0);
+        const destino = String(linha.cells[2]?.textContent || "").trim();
+        if (destino) atual.destinos.add(destino);
         resumo.set(palete, atual);
     });
-    return Array.from(resumo.values()).sort((a, b) =>
+    return Array.from(resumo.values()).map(item => ({
+        ...item,
+        destinos: Array.from(item.destinos)
+    })).sort((a, b) =>
         String(a.palete).localeCompare(String(b.palete), "pt-BR", { numeric: true })
     );
 }
@@ -705,7 +710,8 @@ function renderizarPaletesCaminhao() {
         checkbox.addEventListener("change", atualizarResumoCaminhao);
         const descricao = document.createElement("div");
         const titulo = document.createElement("strong");
-        titulo.textContent = `Palete ${item.palete}`;
+        const destinoPalete = item.destinos.length ? item.destinos.join(" / ") : "Não informado";
+        titulo.textContent = `Palete ${item.palete} — Destino: ${destinoPalete}`;
         const detalhes = document.createElement("span");
         detalhes.textContent = `${item.itens} item(ns) • ${item.caixas} caixas`;
         descricao.append(titulo, detalhes);
@@ -886,6 +892,11 @@ function finalizarCaminhao() {
     const observacao = document.getElementById("campoObservacaoCaminhao").value.trim();
     const selecionados = Array.from(document.querySelectorAll("#listaPaletesCaminhao input:checked"));
     const paletesSelecionados = selecionados.map(input => String(input.dataset.palete));
+    const resumoPaletesSelecionados = paletesSelecionados.map(numero => {
+        const item = obterPaletes().find(palete => palete.palete === numero);
+        const destinos = item?.destinos?.length ? item.destinos.join(" / ") : "Não informado";
+        return `Palete ${numero} — Destino: ${destinos}`;
+    });
     const caixas = selecionados.reduce((total, input) => {
         const item = obterPaletes().find(palete => palete.palete === input.dataset.palete);
         return total + Number(item?.caixas || 0);
@@ -906,7 +917,7 @@ function finalizarCaminhao() {
         salvarCaminhao(true);
         return;
     }
-    const resumo = `Confirmar finalização?\n\nPlaca: ${placa}\nData: ${formatarDataBR(dataCarregamento)}\nPaletes: ${paletesSelecionados.join(", ")}\nTotal de paletes: ${paletesSelecionados.length}\nTotal de caixas: ${caixas}${responsavel ? `\nResponsável: ${responsavel}` : ""}`;
+    const resumo = `Confirmar finalização?\n\nPlaca: ${placa}\nData: ${formatarDataBR(dataCarregamento)}\n\n${resumoPaletesSelecionados.join("\n")}\n\nTotal de paletes: ${paletesSelecionados.length}\nTotal de caixas: ${caixas}${responsavel ? `\nResponsável: ${responsavel}` : ""}`;
     if (!confirm(resumo)) return;
     if (!salvarCaminhao(true)) return;
     const historico = lerHistoricoCaminhoes();
