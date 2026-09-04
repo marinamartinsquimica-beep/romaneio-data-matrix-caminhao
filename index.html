@@ -38,6 +38,7 @@
 <div class="form-grid">
 <div class="input-group manual-field"><label>Data</label><input type="date" id="campoData"></div>
 <div class="input-group manual-field"><label>SKU</label><input type="text" id="campoSku"></div>
+<div class="input-group full qr-operational-field"><label>Destino</label><input type="text" id="campoDestino" maxlength="100" placeholder="Informe o destino"></div>
 <div class="input-group full manual-field"><label>Palete</label><input type="text" id="campoPalete" disabled placeholder="Automático ao salvar"></div>
 <div class="input-group manual-field"><label>Lote (formato Lxx.xx)</label><input type="text" id="campoLote3" maxlength="6" oninput="formatarLote()"></div>
 <div class="input-group manual-field"><label>Data de Postura (formato .xx.xx.xx)</label><input type="text" id="campoLote10" maxlength="9" oninput="formatarPostura()"></div>
@@ -45,14 +46,14 @@
 <div class="input-group full qr-operational-field"><label>Quantidade de Caixas</label><input type="number" id="campoCaixas" min="1"></div>
 <div class="input-group full qr-operational-field"><label>Observações</label><input type="text" id="campoObservacoes" maxlength="250"></div>
 </div><div class="actions"><div id="acoesComposicao" class="actions"><button id="btnAdicionarMais" class="btn-blue" type="button" onclick="salvarComposicao(false)">ADICIONAR MAIS AO PALETE</button><button id="btnFinalizarPalete" class="btn-primary" type="button" onclick="salvarComposicao(true)">FINALIZAR PALETE</button></div><button id="btnLerQrAtual" class="btn-secondary" type="button" onclick="abrirLeitorQr()">Ler código neste palete</button><button class="btn-secondary" type="button" onclick="voltarEscolhaFluxo()">Voltar</button><button id="btnExcel" onclick="gerarExcel()">Gerar e salvar Excel total</button><button id="btnReiniciar" class="btn-danger" onclick="reiniciarEntradas()">Apagar todo o romaneio</button></div></section>
-<section class="card"><div class="card-header"><h2>Entradas</h2><span class="badge">Lista</span></div><div class="input-group search-romaneio"><label for="buscaRomaneio">PESQUISAR NO ROMANEIO</label><input id="buscaRomaneio" type="search" placeholder="Palete, SKU, lote, data ou placa" oninput="filtrarRomaneio()"></div><div class="table-container" id="tableContainer"><table id="tabela"><thead><tr><th onclick="ordenarTabela(0)">DATA</th><th onclick="ordenarTabela(1)">SKU</th><th onclick="ordenarTabela(2)">PALETE</th><th onclick="ordenarTabela(3)">LOTE COMPLETO</th><th>LOTE</th><th>POST</th><th>CX</th><th>OBSERVAÇÕES</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="empty-state" id="emptyState"><div class="empty-icon">📋</div><strong>Nenhuma entrada encontrada</strong><span>Preencha o formulário para adicionar o primeiro romaneio.</span></div></div></section>
+<section class="card"><div class="card-header"><h2>Entradas</h2><span class="badge">Lista</span></div><div class="input-group search-romaneio"><label for="buscaRomaneio">PESQUISAR NO ROMANEIO</label><input id="buscaRomaneio" type="search" placeholder="Palete, SKU, destino, lote, data ou placa" oninput="filtrarRomaneio()"></div><div class="table-container" id="tableContainer"><table id="tabela"><thead><tr><th onclick="ordenarTabela(0)">DATA</th><th onclick="ordenarTabela(1)">SKU</th><th onclick="ordenarTabela(2)">DESTINO</th><th onclick="ordenarTabela(3)">PALETE</th><th onclick="ordenarTabela(4)">LOTE COMPLETO</th><th>LOTE</th><th>POST</th><th>CX</th><th>OBSERVAÇÕES</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="empty-state" id="emptyState"><div class="empty-icon">📋</div><strong>Nenhuma entrada encontrada</strong><span>Preencha o formulário para adicionar o primeiro romaneio.</span></div></div></section>
 </main>
 <main id="abaCaminhao" class="truck-layout hidden">
 <section class="card"><div class="card-header"><h2>Romaneio por Caminhão</h2><span class="badge">Placa atual</span></div><p class="truck-help">Informe a placa e selecione os paletes que serão carregados neste caminhão.</p><div class="input-group"><label for="campoPlaca">PLACA</label><input id="campoPlaca" type="text" maxlength="8" placeholder="ABC1D23" oninput="formatarPlaca(); atualizarSelecaoCaminhao()"></div><div class="input-group"><label for="campoDataCarregamento">DATA DO CARREGAMENTO</label><input id="campoDataCarregamento" type="date"></div><div class="input-group"><label for="campoResponsavelCaminhao">MOTORISTA OU RESPONSÁVEL (OPCIONAL)</label><input id="campoResponsavelCaminhao" type="text" maxlength="100"></div><div class="input-group"><label for="campoObservacaoCaminhao">OBSERVAÇÃO (OPCIONAL)</label><input id="campoObservacaoCaminhao" type="text" maxlength="250"></div><div class="actions"><button class="btn-finish-truck" type="button" onclick="finalizarCaminhao()">FINALIZAR CAMINHÃO</button><button class="btn-danger" type="button" onclick="reiniciarCaminhoes()">LIMPAR SOMENTE CAMINHÕES</button></div><div class="truck-summary" id="resumoCaminhao">Nenhum palete selecionado</div><div class="truck-stats"><div class="truck-stat"><strong id="statPaletesDisponiveis">0</strong><span>Paletes disponíveis</span></div><div class="truck-stat"><strong id="statPaletesDistribuidos">0</strong><span>Paletes distribuídos</span></div><div class="truck-stat"><strong id="statCaixasRestantes">0</strong><span>Caixas ainda disponíveis</span></div><div class="truck-stat"><strong id="statCaminhoesFinalizados">0</strong><span>Caminhões finalizados</span></div></div></section>
 <section class="card"><div class="card-header"><h2>Selecionar paletes</h2><span class="badge" id="badgePaletesCaminhao">0 paletes</span></div><div class="truck-select-actions"><button class="btn-primary" type="button" onclick="selecionarTodosPaletes()">SELECIONAR TODOS</button><button class="btn-secondary" type="button" onclick="limparSelecaoPaletes()">LIMPAR SELEÇÃO</button></div><div id="listaPaletesCaminhao" class="truck-pallets"></div></section>
 <section class="card truck-entries"><div class="card-header"><h2>Histórico de caminhões</h2><span class="badge" id="badgeHistoricoCaminhoes">0 caminhões</span></div><div class="table-container"><table id="tabelaHistoricoCaminhoes"><thead><tr><th>PLACA</th><th>PALETES</th><th>CAIXAS</th><th>CARREGAMENTO</th><th>RESPONSÁVEL</th><th>FINALIZADO EM</th><th>AÇÃO</th></tr></thead><tbody></tbody></table><div class="truck-empty" id="historicoCaminhoesVazio">Nenhum caminhão finalizado neste romaneio.</div></div></section>
 </main>
-<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.0</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<footer class="footer">🛡️ <strong>Romaneio Paletes</strong> &nbsp;•&nbsp; Dados salvos localmente no aparelho<div class="app-version">Versão <span id="appVersion">1.7.1</span></div></footer></div><button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <div id="updateBanner" class="update-banner" aria-live="polite">
   <div><strong>🚀 Nova versão disponível</strong><span>Toque para atualizar o app.</span></div>
@@ -68,7 +69,7 @@
 </div>
 
 <script>
-const APP_VERSION = "1.7.0";
+const APP_VERSION = "1.7.1";
 const VERSION_URL = "version.json";
 const ESTADO_OPERACIONAL_KEY = "romaneio_estado_operacional";
 const RASCUNHO_KEY = "romaneio_rascunho";
@@ -131,6 +132,7 @@ function salvarRascunhoAtual() {
     const rascunho = {
         data: campoData.value,
         sku: campoSku.value,
+        destino: campoDestino.value,
         palete: String(paleteAtual),
         loteCompleto: campoLote.value,
         lote: campoLote3.value,
@@ -139,7 +141,7 @@ function salvarRascunhoAtual() {
         observacoes: campoObservacoes.value,
         origem: fluxoEntrada || "manual"
     };
-    if (![rascunho.sku, rascunho.lote, rascunho.postura, rascunho.caixas, rascunho.observacoes].some(valor => String(valor || "").trim())) return;
+    if (![rascunho.sku, rascunho.destino, rascunho.lote, rascunho.postura, rascunho.caixas, rascunho.observacoes].some(valor => String(valor || "").trim())) return;
     localStorage.setItem(RASCUNHO_KEY, JSON.stringify(rascunho));
 }
 
@@ -153,6 +155,7 @@ function restaurarRascunho(rascunho) {
     usarInsercaoManual();
     campoData.value = rascunho.data || "";
     campoSku.value = rascunho.sku || "";
+    campoDestino.value = rascunho.destino || "";
     campoPalete.value = paleteAtual;
     campoLote3.value = rascunho.lote || "";
     campoLote10.value = rascunho.postura || "";
@@ -178,10 +181,10 @@ function restaurarRascunho(rascunho) {
 
 function resumoDoPalete(numero) {
     const linhas = Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .filter(linha => String(linha.cells[2]?.textContent || "") === String(numero));
+        .filter(linha => String(linha.cells[3]?.textContent || "") === String(numero));
     return {
         itens: linhas.length,
-        caixas: linhas.reduce((total, linha) => total + Number(linha.cells[6]?.textContent || 0), 0)
+        caixas: linhas.reduce((total, linha) => total + Number(linha.cells[7]?.textContent || 0), 0)
     };
 }
 
@@ -223,7 +226,7 @@ function finalizarPaleteAbertoSemRegistro() {
 
 function proximoNumeroPalete() {
     const numeros = Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .map((linha) => String(linha.cells[2]?.textContent || "").trim())
+        .map((linha) => String(linha.cells[3]?.textContent || "").trim())
         .map((valor) => /^(?:palete\s*)?(\d+)$/i.exec(valor))
         .filter(Boolean)
         .map((resultado) => Number(resultado[1]));
@@ -244,8 +247,8 @@ function garantirPaleteAtual() {
 function atualizarResumoPaleteAtual() {
     if (paleteAtual === null) return;
     const linhas = Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .filter((linha) => String(linha.cells[2]?.textContent || "") === String(paleteAtual));
-    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[6]?.textContent || 0), 0);
+        .filter((linha) => String(linha.cells[3]?.textContent || "") === String(paleteAtual));
+    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[7]?.textContent || 0), 0);
     document.getElementById("numeroPaleteAtual").textContent = String(paleteAtual);
     document.getElementById("itensPaleteAtual").textContent = String(linhas.length);
     document.getElementById("caixasPaleteAtual").textContent = String(caixas);
@@ -467,7 +470,7 @@ function preencherFormularioComQr(texto) {
     document.getElementById("qrResumo").classList.remove("hidden");
     document.getElementById("formEntrada").classList.remove("qr-scanning");
     salvarRascunhoAtual();
-    campoCaixas.focus();
+    campoDestino.focus();
 }
 
 function cancelarLeitorQr() {
@@ -519,7 +522,7 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-const CAMPOS_RASCUNHO = new Set(["campoData", "campoSku", "campoLote3", "campoLote10", "campoCaixas", "campoObservacoes"]);
+const CAMPOS_RASCUNHO = new Set(["campoData", "campoSku", "campoDestino", "campoLote3", "campoLote10", "campoCaixas", "campoObservacoes"]);
 document.addEventListener("input", event => {
     if (event.target && CAMPOS_RASCUNHO.has(event.target.id)) salvarRascunhoAtual();
 });
@@ -604,11 +607,11 @@ function salvarHistoricoCaminhoes(dados) {
 function obterPaletes() {
     const resumo = new Map();
     document.querySelectorAll("#tabela tbody tr").forEach(linha => {
-        const palete = String(linha.cells[2]?.textContent || "").trim();
+        const palete = String(linha.cells[3]?.textContent || "").trim();
         if (!palete) return;
         const atual = resumo.get(palete) || { palete, itens: 0, caixas: 0 };
         atual.itens += 1;
-        atual.caixas += Number(linha.cells[6]?.textContent || 0);
+        atual.caixas += Number(linha.cells[7]?.textContent || 0);
         resumo.set(palete, atual);
     });
     return Array.from(resumo.values()).sort((a, b) =>
@@ -754,7 +757,7 @@ function atualizarResumoCaminhao() {
 function linhasDaPlaca(placa) {
     const caminhoes = lerCaminhoes();
     return Array.from(document.querySelectorAll("#tabela tbody tr"))
-        .filter(linha => caminhoes[String(linha.cells[2]?.textContent || "").trim()] === placa);
+        .filter(linha => caminhoes[String(linha.cells[3]?.textContent || "").trim()] === placa);
 }
 
 function abrirCaminhaoHistorico(placa) {
@@ -775,7 +778,7 @@ function baixarCaminhaoHistorico(placa) {
         alert("Este caminhão não possui mais entradas no romaneio.");
         return;
     }
-    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[6]?.textContent || 0), 0);
+    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[7]?.textContent || 0), 0);
     const hoje = dataLocalISO().split("-").reverse().join("-");
     gerarArquivoExcel(linhas, `romaneio_${placa}_${hoje}_${caixas}-caixas.xlsx`, `Caminhão ${placa}`);
 }
@@ -808,8 +811,8 @@ function renderizarHistoricoCaminhoes() {
 
     registros.forEach(item => {
         const linha = tbody.insertRow();
-        const paletes = new Set(item.linhas.map(registro => registro.cells[2]?.textContent).filter(Boolean));
-        const caixas = item.linhas.reduce((total, registro) => total + Number(registro.cells[6]?.textContent || 0), 0);
+        const paletes = new Set(item.linhas.map(registro => registro.cells[3]?.textContent).filter(Boolean));
+        const caixas = item.linhas.reduce((total, registro) => total + Number(registro.cells[7]?.textContent || 0), 0);
         const finalizado = item.finalizadoEm ? new Date(item.finalizadoEm).toLocaleString("pt-BR") : "--";
         const carregamento = item.dataCarregamento ? formatarDataBR(item.dataCarregamento) : "--";
         const listaPaletes = Array.from(paletes).sort((a, b) =>
@@ -920,7 +923,7 @@ function finalizarCaminhao() {
 
 function preencherLinha(linha, item) {
     linha.replaceChildren();
-    const valores = [item.data, item.sku, item.palete, item.loteCompleto, item.lote, item.postura, item.caixas, item.observacoes || ""];
+    const valores = [item.data, item.sku, item.destino || "", item.palete, item.loteCompleto, item.lote, item.postura, item.caixas, item.observacoes || ""];
 
     valores.forEach((valor) => {
         const celula = linha.insertCell();
@@ -951,7 +954,7 @@ function preencherLinha(linha, item) {
 function atualizarAcoesAdicionarEntrada() {
     const estado = lerEstadoOperacional();
     document.querySelectorAll(".btn-adicionar-entrada").forEach(botao => {
-        const numero = botao.closest("tr")?.cells[2]?.textContent || "";
+        const numero = botao.closest("tr")?.cells[3]?.textContent || "";
         botao.classList.toggle("hidden", Boolean(estado && String(estado.paleteAtual) === String(numero)));
     });
 }
@@ -959,7 +962,7 @@ function atualizarAcoesAdicionarEntrada() {
 function adicionarEntradaPaleteFechado(botao) {
     const linha = botao.closest("tr");
     if (!linha) return;
-    paleteAtual = linha.cells[2].textContent;
+    paleteAtual = linha.cells[3].textContent;
     adicionandoEmPaleteFechado = true;
     document.querySelector("#escolhaFluxo h2").textContent = `Adicionar entrada ao palete ${paleteAtual}`;
     document.querySelector("#escolhaFluxo .badge").textContent = "Palete fechado";
@@ -976,12 +979,13 @@ function salvarLocalStorage() {
         dados.push({
             data: linha.cells[0].innerText,
             sku: linha.cells[1].innerText,
-            palete: linha.cells[2].innerText,
-            loteCompleto: linha.cells[3].innerText,
-            lote: linha.cells[4].innerText,
-            postura: linha.cells[5].innerText,
-            caixas: linha.cells[6].innerText,
-            observacoes: linha.cells[7].innerText
+            destino: linha.cells[2].innerText,
+            palete: linha.cells[3].innerText,
+            loteCompleto: linha.cells[4].innerText,
+            lote: linha.cells[5].innerText,
+            postura: linha.cells[6].innerText,
+            caixas: linha.cells[7].innerText,
+            observacoes: linha.cells[8].innerText
         });
     }
 
@@ -1031,6 +1035,7 @@ window.onload = function() {
 function limparCampos() {
     campoData.value = "";
     campoSku.value = "";
+    campoDestino.value = "";
     campoPalete.value = "";
     campoLote.value = "";
     campoLote3.value = "";
@@ -1049,6 +1054,7 @@ function salvarEntrada() {
     let dataBR = formatarDataBR(dataISO);
 
     let sku = campoSku.value.trim();
+    let destino = campoDestino.value.trim();
     let palete = campoPalete.value;
     let loteCompleto = campoLote.value;
     let lote = campoLote3.value;
@@ -1056,7 +1062,7 @@ function salvarEntrada() {
     let caixas = campoCaixas.value;
     let observacoes = campoObservacoes.value.trim();
 
-    if (!dataISO || !sku || !palete || !loteCompleto || !caixas || Number(caixas) <= 0) {
+    if (!dataISO || !sku || !destino || !palete || !loteCompleto || !caixas || Number(caixas) <= 0) {
         alert("Preencha todos os campos obrigatórios.");
         return false;
     }
@@ -1065,15 +1071,16 @@ function salvarEntrada() {
         let linha = tbody.rows[indiceEditando];
         linha.cells[0].textContent = dataBR;
         linha.cells[1].textContent = sku;
-        linha.cells[2].textContent = palete;
-        linha.cells[3].textContent = loteCompleto;
-        linha.cells[4].textContent = lote;
-        linha.cells[5].textContent = postura;
-        linha.cells[6].textContent = caixas;
-        linha.cells[7].textContent = observacoes;
+        linha.cells[2].textContent = destino;
+        linha.cells[3].textContent = palete;
+        linha.cells[4].textContent = loteCompleto;
+        linha.cells[5].textContent = lote;
+        linha.cells[6].textContent = postura;
+        linha.cells[7].textContent = caixas;
+        linha.cells[8].textContent = observacoes;
     } else {
         let linha = tbody.insertRow();
-        preencherLinha(linha, { data: dataBR, sku, palete, loteCompleto, lote, postura, caixas, observacoes });
+        preencherLinha(linha, { data: dataBR, sku, destino, palete, loteCompleto, lote, postura, caixas, observacoes });
     }
 
     salvarLocalStorage();
@@ -1119,15 +1126,16 @@ function editarLinha(botao) {
     campoData.value = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
     campoSku.value = linha.cells[1].innerText;
-    campoPalete.value = linha.cells[2].innerText;
+    campoDestino.value = linha.cells[2].innerText;
+    campoPalete.value = linha.cells[3].innerText;
 
-    campoLote.value = linha.cells[3].innerText;
-    campoLote3.value = linha.cells[4].innerText;
-    campoLote10.value = linha.cells[5].innerText;
+    campoLote.value = linha.cells[4].innerText;
+    campoLote3.value = linha.cells[5].innerText;
+    campoLote10.value = linha.cells[6].innerText;
 
-    campoCaixas.value = linha.cells[6].innerText;
-    campoObservacoes.value = linha.cells[7].innerText;
-    paleteAtual = linha.cells[2].innerText;
+    campoCaixas.value = linha.cells[7].innerText;
+    campoObservacoes.value = linha.cells[8].innerText;
+    paleteAtual = linha.cells[3].innerText;
     usarInsercaoManual();
 }
 
@@ -1186,8 +1194,8 @@ function filtrarRomaneio() {
     const termo = String(document.getElementById("buscaRomaneio")?.value || "").trim().toLocaleLowerCase("pt-BR");
     const caminhoes = lerCaminhoes();
     document.querySelectorAll("#tabela tbody tr").forEach(linha => {
-        const palete = String(linha.cells[2]?.textContent || "").trim();
-        const texto = `${Array.from(linha.cells).slice(0, 8).map(celula => celula.textContent).join(" ")} ${caminhoes[palete] || ""}`.toLocaleLowerCase("pt-BR");
+        const palete = String(linha.cells[3]?.textContent || "").trim();
+        const texto = `${Array.from(linha.cells).slice(0, 9).map(celula => celula.textContent).join(" ")} ${caminhoes[palete] || ""}`.toLocaleLowerCase("pt-BR");
         linha.classList.toggle("hidden", Boolean(termo && !texto.includes(termo)));
     });
 }
@@ -1229,7 +1237,7 @@ async function gerarExcel() {
         return;
     }
 
-    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[6]?.textContent || 0), 0);
+    const caixas = linhas.reduce((total, linha) => total + Number(linha.cells[7]?.textContent || 0), 0);
     const hoje = dataLocalISO().split("-").reverse().join("-");
     gerarArquivoExcel(linhas, `romaneio_total_${hoje}_${caixas}-caixas.xlsx`, "Romaneio Total");
 }
@@ -1258,9 +1266,10 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
     }
 
     // Exporta somente os dados; a coluna AÇÃO existe apenas na tela.
-    const cabecalho = Array.from(tabela.querySelectorAll("thead th"))
+    const cabecalhoTela = Array.from(tabela.querySelectorAll("thead th"))
         .slice(0, -1)
         .map((th) => th.innerText.trim());
+    const cabecalho = [...cabecalhoTela.slice(0, 3), "COMPLEMENTO", ...cabecalhoTela.slice(3)];
     cabecalho.push("PLACA", "DATA CARREGAMENTO", "RESPONSÁVEL", "OBSERVAÇÃO CAMINHÃO");
     const caminhoes = lerCaminhoes();
     const historico = lerHistoricoCaminhoes();
@@ -1268,7 +1277,9 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
         const valores = Array.from(linha.cells)
             .slice(0, -1)
             .map((celula) => celula.innerText.trim());
-        const placa = caminhoes[valores[2]] || "";
+        const complemento = `${valores[1] || ""}${valores[2] || ""}`;
+        valores.splice(3, 0, complemento);
+        const placa = caminhoes[valores[4]] || "";
         const dadosCaminhao = historico[placa] || {};
         valores.push(
             placa,
@@ -1290,7 +1301,7 @@ function gerarArquivoExcel(linhas, nomeArquivo, nomeAba) {
     )];
 
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    ws["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 36 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 36 }];
+    ws["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 28 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 36 }, { wch: 12 }, { wch: 18 }, { wch: 24 }, { wch: 36 }];
 
     const range = XLSX.utils.decode_range(ws["!ref"]);
     for (let row = 1; row <= range.e.r; row++) {
@@ -1426,11 +1437,11 @@ function atualizarDashboardVisual() {
             Array.from(document.querySelectorAll("#listaPaletesCaminhao input:checked"))
                 .map(input => String(input.dataset.palete || ""))
         );
-        linhas = todasAsLinhas.filter(linha => paletesSelecionados.has(String(linha.cells[2]?.innerText || "")));
+        linhas = todasAsLinhas.filter(linha => paletesSelecionados.has(String(linha.cells[3]?.innerText || "")));
     }
     const totalRegistros = linhas.length;
-    const totalCaixas = linhas.reduce((s, linha) => s + Number(linha.cells[6]?.innerText || 0), 0);
-    const totalPaletes = new Set(linhas.map(linha => linha.cells[2]?.innerText).filter(Boolean)).size;
+    const totalCaixas = linhas.reduce((s, linha) => s + Number(linha.cells[7]?.innerText || 0), 0);
+    const totalPaletes = new Set(linhas.map(linha => linha.cells[3]?.innerText).filter(Boolean)).size;
     const ultimo = totalRegistros ? linhas[totalRegistros - 1].cells[0].innerText : "--";
 
     const elReg = document.getElementById("dashRegistros");
