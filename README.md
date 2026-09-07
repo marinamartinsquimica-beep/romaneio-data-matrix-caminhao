@@ -1,6 +1,6 @@
 # Romaneio Data Matrix Caminhão
 
-PWA para controle de paletes com leitura de Data Matrix, inclusão em paletes fechados e geração de romaneio total ou por caminhão.
+PWA para controle de paletes com leitura de Data Matrix, inclusão em paletes fechados e geração de romaneio total, por Destino ou por caminhão.
 
 ## Arquivos principais
 - index.html
@@ -15,6 +15,10 @@ PWA para controle de paletes com leitura de Data Matrix, inclusão em paletes fe
 ## Romaneio por caminhão
 
 Na aba **Romaneio por Caminhão**, informe a placa, selecione os paletes e gere o Excel exclusivo do veículo. O Excel do romaneio total também inclui a placa associada a cada palete.
+
+## Romaneios por Destino
+
+Na aba **Romaneio Total**, os registros são agrupados automaticamente por Destino. Cada Destino permite adicionar novos paletes, adicionar caixas a paletes existentes e baixar um Excel exclusivo, sem alterar o Excel total.
 
 ## Atualização automática
 Quando publicar nova versão, aumente a versão em `version.json`, em `APP_VERSION` no `index.html` e troque o `CACHE_NAME` no `service-worker.js`.
