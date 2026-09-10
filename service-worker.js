@@ -1,4 +1,4 @@
-const CACHE_NAME = "romaneio-cache-v181-seletor-destinos";
+const CACHE_NAME = "romaneio-cache-v182-apagar-destino";
 
 const FILES_TO_CACHE = [
   "./",
